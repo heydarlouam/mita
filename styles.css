@@ -166,6 +166,56 @@ details p { margin-top: var(--space-3); color: var(--muted); }
 
 footer { padding-block: var(--space-6); text-align:center; color: var(--muted); border-top: 1px solid var(--border); }
 
+/* آیکن‌های اجتماعی در فوتر */
+.social-icons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  padding-block: var(--space-5);
+}
+.social-icons a {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+}
+.social-icons img {
+  width: clamp(28px, 4.5vw, 40px);
+  height: clamp(28px, 4.5vw, 40px);
+  transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+  border-radius: 10px;
+}
+.social-icons a:hover img,
+.social-icons a:focus img,
+.social-icons a:active img {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+.social-icons a::after {
+  content: attr(data-label);
+  position: absolute;
+  inset-inline: 0;
+  bottom: calc(100% + 6px);
+  background: rgba(20,24,30,.9);
+  color: #fff;
+  border: 1px solid #223046;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+  white-space: nowrap;
+}
+.social-icons a:hover::after,
+.social-icons a:focus::after,
+.social-icons a:active::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Brand Hero */
 .brand-hero { padding-block: var(--space-4) var(--space-6); border-top: none; }
 .brand-hero .wrap { display:flex; flex-direction:column; align-items:center; gap: var(--space-4); }
