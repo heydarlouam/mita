@@ -45,7 +45,7 @@ async function typeText(el,text,speed){ el.textContent=""; for(let i=1;i<=text.l
 async function deleteText(el,speed){ for(let i=el.textContent.length;i>=0;i--){ el.textContent=el.textContent.slice(0,i); await sleep(speed);} }
 async function startTypeLoop(){
   const el=document.getElementById("typeBox");
-  const items=[ {text:"منومیتا", dir:"rtl"}, {text:"menumita", dir:"ltr"} ];
+  const items=[ {text:"منومیتا", dir:"ltr"}, {text:"menumita", dir:"ltr"} ];
   while(true){ for(const it of items){ el.style.direction = it.dir; el.style.textAlign = "center"; await typeText(el,it.text,120); await sleep(800); await deleteText(el,90); await sleep(400);} }
 }
 document.addEventListener("DOMContentLoaded",startTypeLoop);
