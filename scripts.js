@@ -165,14 +165,22 @@ document.addEventListener('DOMContentLoaded', function(){
   // گالری
   (function renderGallery(){
     const g = document.querySelector('#gallery .gallery');
+    const titleEl = document.getElementById('gallery-title');
+    const subEl = document.querySelector('#gallery .section-sub');
+    if(titleEl && C.gallerySection?.title) titleEl.textContent = C.gallerySection.title;
+    if(subEl && C.gallerySection?.sub) subEl.textContent = C.gallerySection.sub;
     if(!g || !Array.isArray(C.gallery)) return;
     g.innerHTML = '';
     C.gallery.forEach(img=>{
+      if(!img || typeof img.src !== 'string' || !img.src.trim()) return; // skip invalid entries
       const fig = document.createElement('figure');
       const image = document.createElement('img');
       image.src = img.src; image.alt = img.alt || ''; image.loading = 'lazy'; image.decoding = 'async';
       image.width = img.width || 600; image.height = img.height || 400;
       const cap = document.createElement('figcaption'); cap.textContent = img.caption || '';
+      image.addEventListener('error', ()=>{
+        cap.textContent = (img.caption || '') + ' (تصویر در دسترس نیست)';
+      });
       fig.appendChild(image); fig.appendChild(cap);
       g.appendChild(fig);
     });
@@ -272,7 +280,13 @@ document.addEventListener('DOMContentLoaded', function(){
         "itemListElement": C.gallery.map((g,i)=>({
           "@type": "ListItem",
           "position": i+1,
-          "item": {"@type":"ImageObject","contentUrl": abs(g.src), "name": g.alt, "description": g.caption}
+          "item": {
+            "@type":"ImageObject",
+            "contentUrl": abs(g.src),
+            "name": g.alt,
+            "description": g.caption,
+            "keywords": Array.isArray(g.keywords) ? g.keywords.join(', ') : undefined
+          }
         }))
       });
     }
