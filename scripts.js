@@ -2,6 +2,7 @@
 (function(){
   var ham = document.getElementById('hamburger');
   var menu = document.getElementById('mobileMenu');
+  var navDesktop = document.querySelector('header .menu');
   if(!ham || !menu) return;
 
   function lockScroll(lock){
@@ -12,7 +13,33 @@
   function closeMenu(){ menu.hidden = true; ham.setAttribute('aria-expanded','false'); lockScroll(false); }
 
   ham.addEventListener('click', function(){ menu.hidden ? openMenu() : closeMenu(); });
-  menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeMenu); });
+  // اسکرول نرم برای لینک‌های داخلی و بستن منوی موبایل پس از انتخاب
+  function smoothToHash(hash){
+    if(!hash || hash === '#') return;
+    var target = document.querySelector(hash);
+    if(!target) return;
+    var headerOffset = 56; // ارتفاع هدر موبایل
+    var y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+  // تفویض رویداد برای منوی موبایل
+  menu.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#"]');
+    if(!a) return;
+    e.preventDefault();
+    var hash = a.getAttribute('href');
+    closeMenu();
+    smoothToHash(hash);
+  });
+  // اسکرول نرم برای منوی دسکتاپ
+  if(navDesktop){
+    navDesktop.addEventListener('click', function(e){
+      var a = e.target.closest('a[href^="#"]');
+      if(!a) return;
+      e.preventDefault();
+      smoothToHash(a.getAttribute('href'));
+    });
+  }
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !menu.hidden) closeMenu(); });
   document.addEventListener('click', function(e){ if(menu.hidden) return; var within = menu.contains(e.target) || ham.contains(e.target); if(!within) closeMenu(); });
 })();
