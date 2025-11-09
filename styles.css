@@ -173,6 +173,7 @@ footer { padding-block: var(--space-6); text-align:center; color: var(--muted); 
   justify-content: center;
   gap: var(--space-6);
   padding-block: var(--space-5);
+  flex-wrap: nowrap;
 }
 .social-icons a {
   position: relative;
@@ -181,8 +182,8 @@ footer { padding-block: var(--space-6); text-align:center; color: var(--muted); 
 }
 .social-icons img,
 .social-icons .icon {
-  width: clamp(28px, 4.5vw, 40px);
-  height: clamp(28px, 4.5vw, 40px);
+  width: 40px;
+  height: 40px;
   transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
   border-radius: 10px;
 }
@@ -214,7 +215,7 @@ footer { padding-block: var(--space-6); text-align:center; color: var(--muted); 
 .social-icons a::after {
   content: attr(data-label);
   position: absolute;
-  inset-inline: 0;
+  left: 50%;
   bottom: calc(100% + 6px);
   background: rgba(20,24,30,.9);
   color: #fff;
@@ -224,10 +225,11 @@ footer { padding-block: var(--space-6); text-align:center; color: var(--muted); 
   font-size: 12px;
   line-height: 1.4;
   opacity: 0;
-  transform: translateY(4px);
+  transform: translate(-50%, 4px);
   pointer-events: none;
   transition: opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
   white-space: nowrap;
+  max-width: calc(100vw - 32px);
 }
 .social-icons a:hover::after,
 .social-icons a:focus::after,
@@ -235,6 +237,10 @@ footer { padding-block: var(--space-6); text-align:center; color: var(--muted); 
   opacity: 1;
   transform: translateY(0);
 }
+
+/* فرم تماس وسط‌چین با عرض مناسب و ریسپانسیو */
+.contact { display: block; }
+.contact form { max-width: 640px; margin-inline: auto; }
 
 /* Brand Hero */
 .brand-hero { padding-block: var(--space-4) var(--space-6); border-top: none; }
