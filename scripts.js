@@ -3,22 +3,34 @@
   var ham = document.getElementById('hamburger');
   var menu = document.getElementById('mobileMenu');
   var navDesktop = document.querySelector('header .menu');
+  var header = document.querySelector('header');
   if(!ham || !menu) return;
 
   function lockScroll(lock){
     document.documentElement.style.overflow = lock ? 'hidden' : '';
     document.body.style.overflow = lock ? 'hidden' : '';
   }
-  function openMenu(){ menu.hidden = false; ham.setAttribute('aria-expanded','true'); lockScroll(true); }
+  function updateAppbarVar(){ if(!header) return; var h = header.offsetHeight || 56; document.documentElement.style.setProperty('--appbar-h', h + 'px'); }
+  updateAppbarVar();
+  window.addEventListener('resize', updateAppbarVar);
+  function openMenu(){ updateAppbarVar(); menu.hidden = false; ham.setAttribute('aria-expanded','true'); lockScroll(true); }
   function closeMenu(){ menu.hidden = true; ham.setAttribute('aria-expanded','false'); lockScroll(false); }
 
   ham.addEventListener('click', function(){ menu.hidden ? openMenu() : closeMenu(); });
   // اسکرول نرم برای لینک‌های داخلی و بستن منوی موبایل پس از انتخاب
+  function getHeaderOffset(){
+    var header = document.querySelector('header');
+    if(!header) return 0;
+    var cs = window.getComputedStyle(header);
+    var isFixed = cs.position === 'fixed' || cs.position === 'sticky';
+    var h = header.offsetHeight || 0;
+    return (isFixed ? h : 0) + 8; // کمی فاصله برای دید بهتر
+  }
   function smoothToHash(hash){
     if(!hash || hash === '#') return;
     var target = document.querySelector(hash);
     if(!target) return;
-    var headerOffset = 56; // ارتفاع هدر موبایل
+    var headerOffset = getHeaderOffset();
     var y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
