@@ -270,7 +270,7 @@ window.CONTENT = {
     {
       group: "منو + سفارش‌گیری",
       name: "سفارش‌گیری — IR_VPS_06",
-      tag: "تا ۸۰۰ مشتری/روز",
+      tag: "تا ۵۰۰-۱۰۰۰ مشتری/روز",
       price: "۱,۵۶۰,۰۰۰ تومان",
       priceUnit: "ماهانه (فقط سرور)",
       serverMonthlyToman: 1560000,
