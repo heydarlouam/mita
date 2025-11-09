@@ -10,25 +10,30 @@
   <!-- آیکون وب‌سایت -->
   <link rel="icon" type="image/png" href="images/logo_menumita_final_final.png" />
   <link rel="apple-touch-icon" href="images/logo_menumita_final_final.png" />
-  <meta name="description" content="یک توضیح 140-160 کاراکتری درباره محصول/خدمت شما که واضح و جذاب باشد." />
-  <link rel="canonical" href="https://example.com/" />
+  <!-- SEO: توضیحات و کلیدواژه‌ها از content.js تنظیم می‌شوند -->
+  <meta name="description" content="یک توضیح 140-160 کاراکتری درباره محصول/خدمت شما که واضح و جذاب باشد." id="meta-description" />
+  <meta name="keywords" content="" id="meta-keywords" />
+  <!-- SEO: canonical داینامیک از CONTENT.seo.siteUrl/canonical -->
+  <link rel="canonical" href="https://example.com/" id="canonical-link" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#0f1216" />
 
   <!-- Open Graph / Social Sharing -->
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="fa_IR" />
-  <meta property="og:title" content="منومیتا - منو آنلاین" />
-    <meta property="og:description" content="منو آنلاین منومیتا با طراحی مدرن و امکانات کامل" />
-  <meta property="og:url" content="https://example.com/" />
-  <meta property="og:image" content="https://example.com/images/logo_menumita_final_final.png" />
+  <!-- SEO: OG از content.js به‌روزرسانی می‌شود -->
+  <meta property="og:title" content="منومیتا - منو آنلاین" id="og-title" />
+    <meta property="og:description" content="منو آنلاین منومیتا با طراحی مدرن و امکانات کامل" id="og-description" />
+  <meta property="og:url" content="https://example.com/" id="og-url" />
+  <meta property="og:image" content="https://example.com/images/logo_menumita_final_final.png" id="og-image" />
   <meta property="og:image:alt" content="نمایش تصویری خدمت/محصول شما" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="منومیتا - منو آنلاین" />
-    <meta name="twitter:description" content="منو آنلاین منومیتا با طراحی مدرن و امکانات کامل" />
-  <meta name="twitter:image" content="https://example.com/images/logo_menumita_final_final.png" />
+  <!-- SEO: Twitter Card از content.js به‌روزرسانی می‌شود -->
+  <meta name="twitter:title" content="منومیتا - منو آنلاین" id="tw-title" />
+    <meta name="twitter:description" content="منو آنلاین منومیتا با طراحی مدرن و امکانات کامل" id="tw-description" />
+  <meta name="twitter:image" content="https://example.com/images/logo_menumita_final_final.png" id="tw-image" />
 
   <!-- آیکن‌ها -->
   <link rel="icon" href="/favicon.ico" />
@@ -57,6 +62,8 @@
       "query-input": "required name=search_term_string"
     }
   }</script>
+  <!-- SEO: اسکیما داینامیک اینجا تزریق می‌شود -->
+  <script type="application/ld+json" id="schema-dynamic"></script>
 </head>
 <body>
   <a class="skip-link" href="#content">پرش به محتوای اصلی</a>
@@ -97,7 +104,8 @@
   </header>
 
   <!-- ===== Brand Hero ===== -->
-  <section class="brand-hero" aria-labelledby="brand-title">
+  <!-- SEO: سکشن برند/هیرو؛ سئوکار می‌تواند متن‌های هیرو را در content.js تنظیم کند -->
+  <section class="brand-hero" aria-labelledby="brand-title" data-seo-section="brand">
     <div class="container wrap">
       <!-- LOGO (type_menumita_solid.png) -->
       <svg id="logoSvg" class="brand-logo mask-shadow logo-boost" viewBox="0 0 1024 1024" width="220" height="220" role="img" aria-labelledby="brand-title brand-desc">
@@ -123,7 +131,8 @@
 
   <main id="content">
     <!-- بخش هیرو -->
-    <section class="hero container" id="hero">
+    <!-- SEO: محتوای هیرو از CONTENT.hero پر می‌شود -->
+    <section class="hero container" id="hero" data-seo-section="hero">
       <div class="badge" aria-label="نکته برجسته">
         <span>سریع ، امن ، اختصاصی</span>
       </div>
@@ -136,7 +145,8 @@
     </section>
 
     <!-- امکانات کلیدی -->
-    <section id="features" aria-labelledby="features-title">
+    <!-- SEO: امکانات کلیدی؛ آیتم‌ها داینامیک از CONTENT.features -->
+    <section id="features" aria-labelledby="features-title" data-seo-section="features">
       <div class="container">
         <h2 id="features-title" class="section-title">امکانات کلیدی</h2>
         <p class="section-sub">سه تا شش ویژگی مهم که کاربر چرا باید شما را انتخاب کند.</p>
@@ -162,7 +172,8 @@
     </section>
 
     <!-- گالری/نمونه‌ها -->
-    <section id="gallery" aria-labelledby="gallery-title">
+    <!-- SEO: گالری؛ تصاویر با alt و caption داینامیک از CONTENT.gallery -->
+    <section id="gallery" aria-labelledby="gallery-title" data-seo-section="gallery">
       <div class="container">
         <h2 id="gallery-title" class="section-title">نمونه‌ها / گالری</h2>
         <p class="section-sub">چند تصویر با کپشن و alt مناسب برای سئوی تصویری.</p>
@@ -188,7 +199,8 @@
     </section>
 
     <!-- تعرفه / CTA -->
-    <section id="pricing" aria-labelledby="pricing-title">
+    <!-- SEO: پلن‌ها؛ آیتم‌ها از CONTENT.pricing تزریق می‌شود -->
+    <section id="pricing" aria-labelledby="pricing-title" data-seo-section="pricing">
       <div class="container">
         <h2 id="pricing-title" class="section-title">پلن‌ها و تعرفه‌ها</h2>
         <p class="section-sub">اگر قیمت‌گذاری دارید، شفاف بیان کنید. اگر CTA است، مسیر اقدام را ساده کنید.</p>
@@ -218,7 +230,8 @@
     </section>
 
     <!-- سوالات پرتکرار -->
-    <section id="faq" aria-labelledby="faq-title">
+    <!-- SEO: سوالات پرتکرار؛ ساختار FAQPage از CONTENT.faq تولید می‌شود -->
+    <section id="faq" aria-labelledby="faq-title" data-seo-section="faq">
       <div class="container faq">
         <h2 id="faq-title" class="section-title">سوالات پرتکرار</h2>
         <details>
@@ -237,7 +250,8 @@
     </section>
 
     <!-- تماس -->
-    <section id="contact" aria-labelledby="contact-title">
+    <!-- SEO: تماس؛ عنوان و توضیحات در CONTENT.contact قابل تنظیم است -->
+    <section id="contact" aria-labelledby="contact-title" data-seo-section="contact">
       <div class="container contact">
         <form aria-label="فرم تماس" method="post" action="https://formspree.io/f/your-id">
           <h2 id="contact-title" class="section-title">ارتباط با ما</h2>
@@ -283,6 +297,7 @@
   </footer>
 
   <!-- اسکریپت‌های سفارشی -->
+  <script src="content.js"></script>
   <script src="scripts.js"></script>
 </body>
 </html>

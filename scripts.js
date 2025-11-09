@@ -58,3 +58,258 @@ document.addEventListener('DOMContentLoaded', function() {
   }, { rootMargin: '150px 0px' });
   lazyImages.forEach(img => imageObserver.observe(img));
 });
+
+// ===== تزریق محتوای داینامیک از content.js =====
+document.addEventListener('DOMContentLoaded', function(){
+  if(!window.CONTENT) return;
+  const C = window.CONTENT;
+
+  // Helper: ساخت URL مطلق از مسیر نسبی
+  function abs(path){
+    try{ const base = (C.seo && C.seo.siteUrl) ? C.seo.siteUrl : document.baseURI; return new URL(path, base).href; }catch(e){ return path; }
+  }
+
+  // SEO: عنوان، توضیحات، کلیدواژه‌ها
+  (function applySEO(){
+    if(C.seo){
+      if(C.seo.title) document.title = C.seo.title;
+      const metaDesc = document.getElementById('meta-description') || document.querySelector('meta[name="description"]');
+      if(metaDesc && C.seo.description) metaDesc.setAttribute('content', C.seo.description);
+      const metaKeywords = document.getElementById('meta-keywords');
+      if(metaKeywords && Array.isArray(C.seo.keywords)) metaKeywords.setAttribute('content', C.seo.keywords.join(', '));
+
+      // canonical
+      const canonical = document.getElementById('canonical-link');
+      if(canonical){ canonical.setAttribute('href', C.seo.canonical || C.seo.siteUrl || canonical.getAttribute('href')); }
+
+      // Open Graph
+      const ogTitle = document.getElementById('og-title');
+      const ogDesc = document.getElementById('og-description');
+      const ogUrl = document.getElementById('og-url');
+      const ogImg = document.getElementById('og-image');
+      if(ogTitle && (C.seo.og?.title || C.seo.title)) ogTitle.setAttribute('content', C.seo.og?.title || C.seo.title);
+      if(ogDesc && (C.seo.og?.description || C.seo.description)) ogDesc.setAttribute('content', C.seo.og?.description || C.seo.description);
+      if(ogUrl && (C.seo.canonical || C.seo.siteUrl)) ogUrl.setAttribute('content', C.seo.canonical || C.seo.siteUrl);
+      if(ogImg && (C.seo.og?.image || C.seo.logo)) ogImg.setAttribute('content', abs(C.seo.og?.image || C.seo.logo));
+
+      // Twitter
+      const twTitle = document.getElementById('tw-title');
+      const twDesc = document.getElementById('tw-description');
+      const twImg = document.getElementById('tw-image');
+      if(twTitle && (C.seo.twitter?.title || C.seo.title)) twTitle.setAttribute('content', C.seo.twitter?.title || C.seo.title);
+      if(twDesc && (C.seo.twitter?.description || C.seo.description)) twDesc.setAttribute('content', C.seo.twitter?.description || C.seo.description);
+      if(twImg && (C.seo.twitter?.image || C.seo.logo)) twImg.setAttribute('content', abs(C.seo.twitter?.image || C.seo.logo));
+    }
+  })();
+
+  // ناوبری بالا و موبایل
+  (function renderNav(){
+    if(Array.isArray(C.nav)){
+      const navDesktop = document.querySelector('header .menu');
+      const navMobile = document.getElementById('mobileMenu');
+      const renderLinks = (parent)=>{
+        if(!parent) return;
+        parent.innerHTML = '';
+        C.nav.forEach(item=>{
+          const a = document.createElement('a');
+          a.href = item.href;
+          a.textContent = item.text;
+          parent.appendChild(a);
+        });
+      };
+      renderLinks(navDesktop);
+      renderLinks(navMobile);
+    }
+  })();
+
+  // هیرو
+  (function renderHero(){
+    const hero = document.getElementById('hero');
+    if(!hero || !C.hero) return;
+    const badgeSpan = hero.querySelector('.badge span');
+    const h1 = hero.querySelector('h1');
+    const p = hero.querySelector('p');
+    const cta = hero.querySelector('.cta');
+    if(C.hero.badge && badgeSpan) badgeSpan.textContent = C.hero.badge;
+    if(C.hero.headline && h1) h1.textContent = C.hero.headline;
+    if(C.hero.subline && p) p.textContent = C.hero.subline;
+    if(Array.isArray(C.hero.ctas) && cta){
+      cta.innerHTML = '';
+      C.hero.ctas.forEach(btn=>{
+        const a = document.createElement('a');
+        a.className = 'btn ' + (btn.variant === 'secondary' ? 'secondary' : 'primary');
+        a.href = btn.href || '#';
+        a.textContent = btn.text || '';
+        cta.appendChild(a);
+      });
+    }
+  })();
+
+  // امکانات
+  (function renderFeatures(){
+    const list = document.querySelector('#features .features');
+    const sub = document.querySelector('#features .section-sub');
+    if(!list || !Array.isArray(C.features)) return;
+    list.innerHTML = '';
+    C.features.forEach(f=>{
+      const art = document.createElement('article');
+      art.className = 'card';
+      const h3 = document.createElement('h3'); h3.textContent = f.title || '';
+      const p = document.createElement('p'); p.textContent = f.description || '';
+      art.appendChild(h3); art.appendChild(p);
+      list.appendChild(art);
+    });
+    if(sub) sub.textContent = 'امکانات کلیدی و مزایای اصلی محصول';
+  })();
+
+  // گالری
+  (function renderGallery(){
+    const g = document.querySelector('#gallery .gallery');
+    if(!g || !Array.isArray(C.gallery)) return;
+    g.innerHTML = '';
+    C.gallery.forEach(img=>{
+      const fig = document.createElement('figure');
+      const image = document.createElement('img');
+      image.src = img.src; image.alt = img.alt || ''; image.loading = 'lazy'; image.decoding = 'async';
+      image.width = img.width || 600; image.height = img.height || 400;
+      const cap = document.createElement('figcaption'); cap.textContent = img.caption || '';
+      fig.appendChild(image); fig.appendChild(cap);
+      g.appendChild(fig);
+    });
+  })();
+
+  // تعرفه‌ها
+  (function renderPricing(){
+    const pWrap = document.querySelector('#pricing .pricing');
+    if(!pWrap || !Array.isArray(C.pricing)) return;
+    pWrap.innerHTML = '';
+    C.pricing.forEach(p=>{
+      const card = document.createElement('div'); card.className = 'price-card';
+      const h3 = document.createElement('h3'); h3.textContent = p.name || '';
+      const price = document.createElement('div'); price.className = 'price';
+      price.innerHTML = `${p.price || ''} <small>/ ${p.priceUnit || ''}</small>`;
+      const ul = document.createElement('ul'); ul.className = 'clean';
+      (p.benefits||[]).forEach(b=>{ const li=document.createElement('li'); li.textContent=b; ul.appendChild(li); });
+      const a = document.createElement('a'); a.className = 'btn ' + (p.variant === 'secondary' ? 'secondary' : 'primary'); a.href = p.buttonHref || '#'; a.textContent = p.buttonText || '';
+      card.appendChild(h3); card.appendChild(price); card.appendChild(ul); card.appendChild(a);
+      pWrap.appendChild(card);
+    });
+  })();
+
+  // سوالات پرتکرار
+  (function renderFAQ(){
+    const faq = document.querySelector('#faq .faq');
+    if(!faq || !Array.isArray(C.faq)) return;
+    // نگه داشتن عنوان
+    const title = faq.querySelector('#faq-title');
+    faq.innerHTML = '';
+    if(title){ faq.appendChild(title); }
+    C.faq.forEach(item=>{
+      const details = document.createElement('details');
+      const summary = document.createElement('summary'); summary.textContent = item.q || '';
+      const p = document.createElement('p'); p.textContent = item.a || '';
+      details.appendChild(summary); details.appendChild(p);
+      faq.appendChild(details);
+    });
+  })();
+
+  // اسکیماهای داینامیک (JSON-LD)
+  (function buildSchemas(){
+    const arr = [];
+    const siteUrl = C.seo?.siteUrl || document.baseURI;
+
+    // Organization
+    if(C.seo){
+      const org = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": C.seo.brandName || C.seo.title || document.title,
+        "url": siteUrl,
+        "logo": C.seo.logo ? abs(C.seo.logo) : undefined,
+        "sameAs": Array.isArray(C.seo.sameAs) ? C.seo.sameAs : undefined,
+        "contactPoint": C.seo.contactPoint ? [{
+          "@type": "ContactPoint",
+          "telephone": C.seo.contactPoint.telephone,
+          "email": C.seo.contactPoint.email,
+          "contactType": C.seo.contactPoint.contactType,
+          "areaServed": C.seo.contactPoint.areaServed
+        }] : undefined
+      };
+      arr.push(org);
+    }
+
+    // WebPage
+    arr.push({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": C.seo?.title || document.title,
+      "url": C.seo?.canonical || siteUrl,
+      "description": C.seo?.description,
+      "inLanguage": "fa-IR",
+      "isPartOf": {"@type":"WebSite","url": siteUrl}
+    });
+
+    // Features as ItemList
+    if(Array.isArray(C.features)){
+      arr.push({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Features",
+        "itemListElement": C.features.map((f,i)=>({
+          "@type": "ListItem",
+          "position": i+1,
+          "item": {"@type":"Thing","name": f.title, "description": f.description}
+        }))
+      });
+    }
+
+    // Gallery as ItemList of ImageObject
+    if(Array.isArray(C.gallery)){
+      arr.push({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Gallery",
+        "itemListElement": C.gallery.map((g,i)=>({
+          "@type": "ListItem",
+          "position": i+1,
+          "item": {"@type":"ImageObject","contentUrl": abs(g.src), "name": g.alt, "description": g.caption}
+        }))
+      });
+    }
+
+    // Pricing as OfferCatalog
+    if(Array.isArray(C.pricing)){
+      arr.push({
+        "@context": "https://schema.org",
+        "@type": "OfferCatalog",
+        "name": "Plans",
+        "itemListElement": C.pricing.map(p=>({
+          "@type": "Offer",
+          "name": p.name,
+          "description": (p.benefits||[]).join("، "),
+          "url": (p.buttonHref||'#')
+        }))
+      });
+    }
+
+    // FAQPage
+    if(Array.isArray(C.faq)){
+      arr.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": C.faq.map(f=>({
+          "@type": "Question",
+          "name": f.q,
+          "acceptedAnswer": {"@type":"Answer","text": f.a}
+        }))
+      });
+    }
+
+    const target = document.getElementById('schema-dynamic');
+    if(target){ target.textContent = JSON.stringify(arr, null, 2); }
+    else {
+      const s = document.createElement('script'); s.type = 'application/ld+json'; s.id='schema-dynamic'; s.textContent = JSON.stringify(arr);
+      document.head.appendChild(s);
+    }
+  })();
+});
