@@ -14,9 +14,9 @@ window.CONTENT = {
   // بخش SEO: عنوان، توضیحات، کلمات کلیدی
   seo: {
     // آدرس سایت برای canonical و اسکیما
-    siteUrl: "https://example.com/",
+    siteUrl: "https://milad-heydarloo.github.io/mita/",
     // لینک canonical اختصاصی (اختیاری)
-    canonical: "https://example.com/",
+    canonical: "https://milad-heydarloo.github.io/mita/",
     // نام برند برای اسکیما
     brandName: "منومیتا",
     // مسیر لوگو (ترجیحاً مطلق)
