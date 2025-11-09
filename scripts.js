@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if(!img || typeof img.src !== 'string' || !img.src.trim()) return; // skip invalid entries
       const fig = document.createElement('figure');
       const image = document.createElement('img');
-      image.src = img.src; image.alt = img.alt || ''; image.loading = 'lazy'; image.decoding = 'async';
+      image.src = img.src; image.alt = img.alt || ''; image.loading = 'eager'; image.decoding = 'async';
       image.width = img.width || 600; image.height = img.height || 400;
       const cap = document.createElement('figcaption'); cap.textContent = img.caption || '';
       image.addEventListener('error', ()=>{
