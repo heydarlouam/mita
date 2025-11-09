@@ -179,15 +179,35 @@ footer { padding-block: var(--space-6); text-align:center; color: var(--muted); 
   display: inline-grid;
   place-items: center;
 }
-.social-icons img {
+.social-icons img,
+.social-icons .icon {
   width: clamp(28px, 4.5vw, 40px);
   height: clamp(28px, 4.5vw, 40px);
   transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
   border-radius: 10px;
 }
+
+/* آیکن رنگی با ماسک تصویر و گرادیان پویا */
+.social-icons .icon {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--g1), var(--g2), var(--g3));
+  /* استاندارد */
+  mask-image: var(--icon-src);
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  mask-position: center;
+  /* WebKit */
+  -webkit-mask-image: var(--icon-src);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+}
 .social-icons a:hover img,
+.social-icons a:hover .icon,
 .social-icons a:focus img,
-.social-icons a:active img {
+.social-icons a:focus .icon,
+.social-icons a:active img,
+.social-icons a:active .icon {
   transform: translateY(-2px) scale(1.05);
   box-shadow: 0 6px 16px rgba(0,0,0,.25);
 }
