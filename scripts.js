@@ -1,4 +1,4 @@
-// ==== منوی موبایل (با دسترسی) ====
+// ==== منوی موبایل ====
 (function(){
   var ham = document.getElementById('hamburger');
   var menu = document.getElementById('mobileMenu');
@@ -10,40 +10,41 @@
     document.documentElement.style.overflow = lock ? 'hidden' : '';
     document.body.style.overflow = lock ? 'hidden' : '';
   }
-  function updateAppbarVar(){ if(!header) return; var h = header.offsetHeight || 56; document.documentElement.style.setProperty('--appbar-h', h + 'px'); }
+  function updateAppbarVar(){
+    if(!header) return;
+    var h = header.offsetHeight || 56;
+    document.documentElement.style.setProperty('--appbar-h', h + 'px');
+  }
   updateAppbarVar();
   window.addEventListener('resize', updateAppbarVar);
+
   function openMenu(){ updateAppbarVar(); menu.hidden = false; ham.setAttribute('aria-expanded','true'); lockScroll(true); }
   function closeMenu(){ menu.hidden = true; ham.setAttribute('aria-expanded','false'); lockScroll(false); }
 
   ham.addEventListener('click', function(){ menu.hidden ? openMenu() : closeMenu(); });
-  // اسکرول نرم برای لینک‌های داخلی و بستن منوی موبایل پس از انتخاب
+
+  // اسکرول نرم برای لینک‌های داخلی
   function getHeaderOffset(){
-    var header = document.querySelector('header');
     if(!header) return 0;
     var cs = window.getComputedStyle(header);
     var isFixed = cs.position === 'fixed' || cs.position === 'sticky';
     var h = header.offsetHeight || 0;
-    return (isFixed ? h : 0) + 8; // کمی فاصله برای دید بهتر
+    return (isFixed ? h : 0) + 8;
   }
   function smoothToHash(hash){
     if(!hash || hash === '#') return;
     var target = document.querySelector(hash);
     if(!target) return;
-    var headerOffset = getHeaderOffset();
-    var y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+    var y = target.getBoundingClientRect().top + window.scrollY - getHeaderOffset();
     window.scrollTo({ top: y, behavior: 'smooth' });
   }
-  // تفویض رویداد برای منوی موبایل
   menu.addEventListener('click', function(e){
     var a = e.target.closest('a[href^="#"]');
     if(!a) return;
     e.preventDefault();
-    var hash = a.getAttribute('href');
     closeMenu();
-    smoothToHash(hash);
+    smoothToHash(a.getAttribute('href'));
   });
-  // اسکرول نرم برای منوی دسکتاپ
   if(navDesktop){
     navDesktop.addEventListener('click', function(e){
       var a = e.target.closest('a[href^="#"]');
@@ -56,109 +57,134 @@
   document.addEventListener('click', function(e){ if(menu.hidden) return; var within = menu.contains(e.target) || ham.contains(e.target); if(!within) closeMenu(); });
 })();
 
-// پالت‌های گرادیان برای لوگو + تایپلاین
-const PALETTES = [
-  ["#ff4d4d","#ffb84d","#4dd2ff","#b84dff"],
-  ["#71dd8a","#3aaed8","#2b6cb0","#845ef7"],
-  ["#ff8a00","#e52e71","#7f00ff","#00dbde"],
-  ["#ff416c","#ff4b2b","#ffd166","#06d6a0"],
-  ["#00c6ff","#0072ff","#7f00ff","#e100ff"]
-];
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
-function paintGrad(gradEl, colors){
-  const stops = gradEl.querySelectorAll('stop');
-  const c = colors.length >= 3 ? colors : [colors[0], colors[0], colors[0]];
-  const mid = c[Math.floor(c.length/2)];
-  const end = c[c.length-1];
-  stops[0].setAttribute('stop-color', c[0]);
-  stops[1].setAttribute('stop-color', mid);
-  stops[2].setAttribute('stop-color', end);
-  const root = document.documentElement.style; root.setProperty('--g1', c[0]); root.setProperty('--g2', mid); root.setProperty('--g3', end);
-}
-function recolor(){ paintGrad(document.getElementById('logoGrad'), pick(PALETTES)); }
-document.addEventListener('DOMContentLoaded', ()=>{ recolor(); setInterval(recolor, 6000); document.getElementById('y').textContent = new Date().getFullYear(); });
+// ==== گرادیان لوگو (داینامیک) ====
+(function(){
+  const PALETTES = [
+    ["#ff4d4d","#ffb84d","#4dd2ff","#b84dff"],
+    ["#71dd8a","#3aaed8","#2b6cb0","#845ef7"],
+    ["#ff8a00","#e52e71","#7f00ff","#00dbde"],
+    ["#ff416c","#ff4b2b","#ffd166","#06d6a0"],
+    ["#00c6ff","#0072ff","#7f00ff","#e100ff"]
+  ];
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+  function paintGrad(gradEl, colors){
+    const stops = gradEl.querySelectorAll('stop');
+    const c = colors.length >= 3 ? colors : [colors[0], colors[0], colors[0]];
+    const mid = c[Math.floor(c.length/2)];
+    const end = c[c.length-1];
+    stops[0].setAttribute('stop-color', c[0]);
+    stops[1].setAttribute('stop-color', mid);
+    stops[2].setAttribute('stop-color', end);
+    const root = document.documentElement.style;
+    root.setProperty('--g1', c[0]); root.setProperty('--g2', mid); root.setProperty('--g3', end);
+  }
+  function recolor(){ var g=document.getElementById('logoGrad'); if(g) paintGrad(g, pick(PALETTES)); }
+  document.addEventListener('DOMContentLoaded', ()=>{
+    recolor();
+    setInterval(recolor, 6000);
+    var y = document.getElementById('y'); if(y) y.textContent = new Date().getFullYear();
+  });
+})();
 
-// افکت تایپ دو زبانه با رعایت دسترسی
-const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
-async function typeText(el,text,speed){ el.textContent=""; for(let i=1;i<=text.length;i++){ el.textContent=text.slice(0,i); await sleep(speed);} }
-async function deleteText(el,speed){ for(let i=el.textContent.length;i>=0;i--){ el.textContent=el.textContent.slice(0,i); await sleep(speed);} }
-async function startTypeLoop(){
-  const el=document.getElementById("typeBox");
-  const items=[ {text:"منومیتا", dir:"ltr"}, {text:"menumita", dir:"ltr"} ];
-  while(true){ for(const it of items){ el.style.direction = it.dir; el.style.textAlign = "center"; await typeText(el,it.text,120); await sleep(800); await deleteText(el,90); await sleep(400);} }
-}
-document.addEventListener("DOMContentLoaded",startTypeLoop);
+// ==== افکت تایپ ====
+(function(){
+  const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+  async function typeText(el,text,speed){ el.textContent=""; for(let i=1;i<=text.length;i++){ el.textContent=text.slice(0,i); await sleep(speed);} }
+  async function deleteText(el,speed){ for(let i=el.textContent.length;i>=0;i--){ el.textContent=el.textContent.slice(0,i); await sleep(speed);} }
+  async function startTypeLoop(){
+    const el=document.getElementById("typeBox");
+    if(!el) return;
+    const items=[ {text:"منومیتا", dir:"ltr"}, {text:"menumita", dir:"ltr"} ];
+    while(true){
+      for(const it of items){
+        el.style.direction = it.dir;
+        el.style.textAlign = "center";
+        await typeText(el,it.text,120);
+        await sleep(800);
+        await deleteText(el,90);
+        await sleep(400);
+      }
+    }
+  }
+  document.addEventListener("DOMContentLoaded",startTypeLoop);
+})();
 
-// بارگذاری تدریجی تصاویر (افزودن کلاس loaded هنگام ورود به ویوپورت)
+// ==== Lazy-load visual cue ====
 document.addEventListener('DOMContentLoaded', function() {
   const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+  if(!('IntersectionObserver' in window)) return;
   const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => { if (entry.isIntersecting) { const img = entry.target; img.classList.add('loaded'); observer.unobserve(img); } });
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        img.classList.add('loaded');
+        observer.unobserve(img);
+      }
+    });
   }, { rootMargin: '150px 0px' });
   lazyImages.forEach(img => imageObserver.observe(img));
 });
 
-// ===== تزریق محتوای داینامیک از content.js =====
+// ==== تزریق محتوای داینامیک از content.js ====
 document.addEventListener('DOMContentLoaded', function(){
   if(!window.CONTENT) return;
   const C = window.CONTENT;
 
-  // Helper: ساخت URL مطلق از مسیر نسبی
   function abs(path){
-    try{ const base = (C.seo && C.seo.siteUrl) ? C.seo.siteUrl : document.baseURI; return new URL(path, base).href; }catch(e){ return path; }
+    try{
+      const base = (C.seo && C.seo.siteUrl) ? C.seo.siteUrl : document.baseURI;
+      return new URL(path, base).href;
+    }catch(e){ return path; }
   }
 
-  // SEO: عنوان، توضیحات، کلیدواژه‌ها
+  // SEO
   (function applySEO(){
-    if(C.seo){
-      if(C.seo.title) document.title = C.seo.title;
-      const metaDesc = document.getElementById('meta-description') || document.querySelector('meta[name="description"]');
-      if(metaDesc && C.seo.description) metaDesc.setAttribute('content', C.seo.description);
-      const metaKeywords = document.getElementById('meta-keywords');
-      if(metaKeywords && Array.isArray(C.seo.keywords)) metaKeywords.setAttribute('content', C.seo.keywords.join(', '));
+    if(!C.seo) return;
+    if(C.seo.title) document.title = C.seo.title;
 
-      // canonical
-      const canonical = document.getElementById('canonical-link');
-      if(canonical){ canonical.setAttribute('href', C.seo.canonical || C.seo.siteUrl || canonical.getAttribute('href')); }
+    const metaDesc = document.getElementById('meta-description') || document.querySelector('meta[name="description"]');
+    if(metaDesc && C.seo.description) metaDesc.setAttribute('content', C.seo.description);
 
-      // Open Graph
-      const ogTitle = document.getElementById('og-title');
-      const ogDesc = document.getElementById('og-description');
-      const ogUrl = document.getElementById('og-url');
-      const ogImg = document.getElementById('og-image');
-      if(ogTitle && (C.seo.og?.title || C.seo.title)) ogTitle.setAttribute('content', C.seo.og?.title || C.seo.title);
-      if(ogDesc && (C.seo.og?.description || C.seo.description)) ogDesc.setAttribute('content', C.seo.og?.description || C.seo.description);
-      if(ogUrl && (C.seo.canonical || C.seo.siteUrl)) ogUrl.setAttribute('content', C.seo.canonical || C.seo.siteUrl);
-      if(ogImg && (C.seo.og?.image || C.seo.logo)) ogImg.setAttribute('content', abs(C.seo.og?.image || C.seo.logo));
+    const metaKeywords = document.getElementById('meta-keywords');
+    if(metaKeywords && Array.isArray(C.seo.keywords)) metaKeywords.setAttribute('content', C.seo.keywords.join(', '));
 
-      // Twitter
-      const twTitle = document.getElementById('tw-title');
-      const twDesc = document.getElementById('tw-description');
-      const twImg = document.getElementById('tw-image');
-      if(twTitle && (C.seo.twitter?.title || C.seo.title)) twTitle.setAttribute('content', C.seo.twitter?.title || C.seo.title);
-      if(twDesc && (C.seo.twitter?.description || C.seo.description)) twDesc.setAttribute('content', C.seo.twitter?.description || C.seo.description);
-      if(twImg && (C.seo.twitter?.image || C.seo.logo)) twImg.setAttribute('content', abs(C.seo.twitter?.image || C.seo.logo));
-    }
+    const canonical = document.getElementById('canonical-link');
+    if(canonical){ canonical.setAttribute('href', C.seo.canonical || C.seo.siteUrl || canonical.getAttribute('href')); }
+
+    const ogTitle = document.getElementById('og-title');
+    const ogDesc = document.getElementById('og-description');
+    const ogUrl  = document.getElementById('og-url');
+    const ogImg  = document.getElementById('og-image');
+    if(ogTitle && (C.seo.og?.title || C.seo.title)) ogTitle.setAttribute('content', C.seo.og?.title || C.seo.title);
+    if(ogDesc && (C.seo.og?.description || C.seo.description)) ogDesc.setAttribute('content', C.seo.og?.description || C.seo.description);
+    if(ogUrl  && (C.seo.canonical || C.seo.siteUrl)) ogUrl.setAttribute('content', C.seo.canonical || C.seo.siteUrl);
+    if(ogImg  && (C.seo.og?.image || C.seo.logo)) ogImg.setAttribute('content', abs(C.seo.og?.image || C.seo.logo));
+
+    const twTitle = document.getElementById('tw-title');
+    const twDesc  = document.getElementById('tw-description');
+    const twImg   = document.getElementById('tw-image');
+    if(twTitle && (C.seo.twitter?.title || C.seo.title)) twTitle.setAttribute('content', C.seo.twitter?.title || C.seo.title);
+    if(twDesc  && (C.seo.twitter?.description || C.seo.description)) twDesc.setAttribute('content', C.seo.twitter?.description || C.seo.description);
+    if(twImg   && (C.seo.twitter?.image || C.seo.logo)) twImg.setAttribute('content', abs(C.seo.twitter?.image || C.seo.logo));
   })();
 
-  // ناوبری بالا و موبایل
+  // ناوبری
   (function renderNav(){
-    if(Array.isArray(C.nav)){
-      const navDesktop = document.querySelector('header .menu');
-      const navMobile = document.getElementById('mobileMenu');
-      const renderLinks = (parent)=>{
-        if(!parent) return;
-        parent.innerHTML = '';
-        C.nav.forEach(item=>{
-          const a = document.createElement('a');
-          a.href = item.href;
-          a.textContent = item.text;
-          parent.appendChild(a);
-        });
-      };
-      renderLinks(navDesktop);
-      renderLinks(navMobile);
-    }
+    if(!Array.isArray(C.nav)) return;
+    const navDesktop = document.querySelector('header .menu');
+    const navMobile  = document.getElementById('mobileMenu');
+    const renderLinks = (parent)=>{
+      if(!parent) return;
+      parent.innerHTML = '';
+      C.nav.forEach(item=>{
+        const a = document.createElement('a');
+        a.href = item.href;
+        a.textContent = item.text;
+        parent.appendChild(a);
+      });
+    };
+    renderLinks(navDesktop);
+    renderLinks(navMobile);
   })();
 
   // هیرو
@@ -167,8 +193,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!hero || !C.hero) return;
     const badgeSpan = hero.querySelector('.badge span');
     const h1 = hero.querySelector('h1');
-    const p = hero.querySelector('p');
-    const cta = hero.querySelector('.cta');
+    const p  = hero.querySelector('p');
+    const cta= hero.querySelector('.cta');
     if(C.hero.badge && badgeSpan) badgeSpan.textContent = C.hero.badge;
     if(C.hero.headline && h1) h1.textContent = C.hero.headline;
     if(C.hero.subline && p) p.textContent = C.hero.subline;
@@ -187,14 +213,13 @@ document.addEventListener('DOMContentLoaded', function(){
   // امکانات
   (function renderFeatures(){
     const list = document.querySelector('#features .features');
-    const sub = document.querySelector('#features .section-sub');
+    const sub  = document.querySelector('#features .section-sub');
     if(!list || !Array.isArray(C.features)) return;
     list.innerHTML = '';
     C.features.forEach(f=>{
-      const art = document.createElement('article');
-      art.className = 'card';
+      const art = document.createElement('article'); art.className = 'card';
       const h3 = document.createElement('h3'); h3.textContent = f.title || '';
-      const p = document.createElement('p'); p.textContent = f.description || '';
+      const p  = document.createElement('p');  p.textContent  = f.description || '';
       art.appendChild(h3); art.appendChild(p);
       list.appendChild(art);
     });
@@ -205,21 +230,19 @@ document.addEventListener('DOMContentLoaded', function(){
   (function renderGallery(){
     const g = document.querySelector('#gallery .gallery');
     const titleEl = document.getElementById('gallery-title');
-    const subEl = document.querySelector('#gallery .section-sub');
+    const subEl   = document.querySelector('#gallery .section-sub');
     if(titleEl && C.gallerySection?.title) titleEl.textContent = C.gallerySection.title;
-    if(subEl && C.gallerySection?.sub) subEl.textContent = C.gallerySection.sub;
+    if(subEl   && C.gallerySection?.sub)   subEl.textContent   = C.gallerySection.sub;
     if(!g || !Array.isArray(C.gallery)) return;
     g.innerHTML = '';
     C.gallery.forEach(img=>{
-      if(!img || typeof img.src !== 'string' || !img.src.trim()) return; // skip invalid entries
+      if(!img || typeof img.src !== 'string' || !img.src.trim()) return;
       const fig = document.createElement('figure');
       const image = document.createElement('img');
       image.src = img.src; image.alt = img.alt || ''; image.loading = 'eager'; image.decoding = 'async';
       image.width = img.width || 600; image.height = img.height || 400;
       const cap = document.createElement('figcaption'); cap.textContent = img.caption || '';
-      image.addEventListener('error', ()=>{
-        cap.textContent = (img.caption || '') + ' (تصویر در دسترس نیست)';
-      });
+      image.addEventListener('error', ()=>{ cap.textContent = (img.caption || '') + ' (تصویر در دسترس نیست)'; });
       fig.appendChild(image); fig.appendChild(cap);
       g.appendChild(fig);
     });
@@ -232,15 +255,13 @@ document.addEventListener('DOMContentLoaded', function(){
     pWrap.innerHTML = '';
     C.pricing.forEach(p=>{
       const card = document.createElement('div'); card.className = 'price-card';
-      if(p.featured) { card.classList.add('featured'); }
+      if(p.featured) card.classList.add('featured');
       const h3 = document.createElement('h3'); h3.textContent = p.name || '';
       const meta = document.createElement('div'); meta.className = 'price-meta';
       meta.innerHTML = `${p.group ? `<small>${p.group}</small>`:''} ${p.tag ? `<small>${p.tag}</small>`:''}`;
       const price = document.createElement('div'); price.className = 'price';
       price.innerHTML = `${p.price || ''} <small>/ ${p.priceUnit || ''}</small>`;
-      // منابع سرور
-      const res = document.createElement('p'); res.textContent = p.resources || '';
-      // اعداد و جمع‌ها
+      const res = document.createElement('p'); if(p.resources){ res.textContent = p.resources; }
       const fmt = (n)=> typeof n==='number' ? n.toLocaleString('fa-IR') : '';
       const totals = document.createElement('div'); totals.className = 'totals';
       const t1 = (p.totalFirstYearRial ? `<div>جمع سال اول: ${fmt(p.totalFirstYearRial)} ریال</div>` : '');
@@ -259,10 +280,9 @@ document.addEventListener('DOMContentLoaded', function(){
   (function renderFAQ(){
     const faq = document.querySelector('#faq .faq');
     if(!faq || !Array.isArray(C.faq)) return;
-    // نگه داشتن عنوان
     const title = faq.querySelector('#faq-title');
     faq.innerHTML = '';
-    if(title){ faq.appendChild(title); }
+    if(title) faq.appendChild(title);
     C.faq.forEach(item=>{
       const details = document.createElement('details');
       const summary = document.createElement('summary'); summary.textContent = item.q || '';
@@ -272,143 +292,11 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   })();
 
-
-
-  // (function () {
-  //   const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzMi1Z1_QjW1EKOOteZ5GkrO8CLEcqpzFb8FzZaDXc1ZxBb-ELx8oNWVnhJZzQytOugSg/exec';
-
-  //   const form = document.getElementById('contactForm');
-  //   const statusEl = document.getElementById('formStatus');
-
-  //   // پر کردن hiddenها
-  //   const ua = form.querySelector('input[name="user_agent"]');
-  //   const rf = form.querySelector('input[name="referrer"]');
-  //   if (ua) ua.value = navigator.userAgent;
-  //   if (rf) rf.value = document.referrer || location.href;
-
-  //   form.addEventListener('submit', async function (e) {
-  //     e.preventDefault();
-
-  //     // ضداسپم: اگر ربات پرش کرد، ارسال نکن ولی پیام موفقیت بده
-  //     const hp = form.querySelector('input[name="honeypot"]');
-  //     if (hp && hp.value) {
-  //       statusEl.textContent = 'پیام شما ثبت شد. 🌟';
-  //       form.reset();
-  //       return;
-  //     }
-
-  //     // اعتبارسنجی ساده
-  //     const name = form.name.value.trim();
-  //     const email = form.email.value.trim();
-  //     const message = form.message.value.trim();
-  //     if (!name || !email || !message) {
-  //       statusEl.textContent = 'لطفاً همه فیلدها را پر کنید.';
-  //       return;
-  //     }
-
-  //     statusEl.textContent = 'در حال ارسال...';
-
-  //     try {
-  //       const formData = new FormData(form);
-  //       const res = await fetch(WEB_APP_URL, { method: 'POST', body: formData });
-
-  //       let ok = res.ok;
-  //       try {
-  //         const data = await res.json();
-  //         if (typeof data?.ok !== 'undefined') ok = !!data.ok;
-  //       } catch (_) {}
-
-  //       if (ok) {
-  //         statusEl.textContent = 'پیام شما با موفقیت ثبت شد. 🌟';
-  //         form.reset();
-  //       } else {
-  //         statusEl.textContent = 'ارسال ناموفق بود. دوباره تلاش کنید.';
-  //       }
-  //     } catch (err) {
-  //       statusEl.textContent = 'خطا در ارتباط. اتصال اینترنت/فیلترشکن را چک کنید.';
-  //     }
-  //   });
-  // })();
-(function () {
-  // آدرس Web App فعلی (جدیدترین Deployment لینک /exec)
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzMi1Z1_QjW1EKOOteZ5GkrO8CLEcqpzFb8FzZaDXc1ZxBb-ELx8oNWVnhJZzQytOugSg/exec';
-
-  const form = document.getElementById('contactForm');
-  const statusEl = document.getElementById('formStatus');
-  if (!form) return;
-
-  // مقداردهی hiddenها
-  const ua = form.querySelector('input[name="user_agent"]');
-  const rf = form.querySelector('input[name="referrer"]');
-  if (ua) ua.value = navigator.userAgent;
-  if (rf) rf.value = document.referrer || location.href;
-
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
-
-    // هانی‌پات ضداسپم
-    const hp = form.querySelector('input[name="honeypot"]');
-    if (hp && hp.value) {
-      statusEl.textContent = 'پیام شما ثبت شد. 🌟';
-      form.reset();
-      try { turnstile && turnstile.reset(); } catch(_) {}
-      return;
-    }
-
-    // اعتبارسنجی ساده فرانت
-    const name = (form.name?.value || '').trim();
-    const phone = (form.phone?.value || '').trim();
-    const message = (form.message?.value || '').trim();
-    if (!name || !phone || !message) {
-      statusEl.textContent = 'لطفاً نام، شماره تماس و پیام را وارد کنید.';
-      return;
-    }
-
-    // بررسی اینکه Turnstile توکن را تزریق کرده
-    const tsField = form.querySelector('input[name="cf-turnstile-response"]');
-    if (!tsField || !tsField.value) {
-      statusEl.textContent = 'لطفاً اعتبارسنجی امنیتی را تکمیل کنید.';
-      return;
-    }
-
-    statusEl.textContent = 'در حال ارسال...';
-
-    try {
-      const formData = new FormData(form);
-      const res = await fetch(WEB_APP_URL, { method: 'POST', body: formData });
-
-      let payload = null;
-      try { payload = await res.json(); } catch (_) {}
-
-      // اگر سرور پیام فارسی برگرداند، همان را نمایش ده
-      if (payload && typeof payload.message === 'string') {
-        statusEl.textContent = payload.message;
-      } else if (res.ok) {
-        statusEl.textContent = 'پیام شما با موفقیت ثبت شد. 🌟';
-      } else {
-        statusEl.textContent = 'ارسال پیام ناموفق بود. لطفاً دوباره تلاش کنید.';
-      }
-
-      if (payload?.ok || res.ok) {
-        form.reset();
-        try { turnstile && turnstile.reset(); } catch(_) {}
-      }
-    } catch (err) {
-      statusEl.textContent = 'خطا در ارتباط. اتصال اینترنت/فیلترشکن را بررسی کنید.';
-    }
-  });
-})();
-
-
-
-
-
-  // اسکیماهای داینامیک (JSON-LD)
+  // ==== اسکیماهای داینامیک (JSON-LD) ====
   (function buildSchemas(){
     const arr = [];
     const siteUrl = C.seo?.siteUrl || document.baseURI;
 
-    // Organization
     if(C.seo){
       const org = {
         "@context": "https://schema.org",
@@ -428,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function(){
       arr.push(org);
     }
 
-    // WebPage
     arr.push({
       "@context": "https://schema.org",
       "@type": "WebPage",
@@ -439,7 +326,6 @@ document.addEventListener('DOMContentLoaded', function(){
       "isPartOf": {"@type":"WebSite","url": siteUrl}
     });
 
-    // Features as ItemList
     if(Array.isArray(C.features)){
       arr.push({
         "@context": "https://schema.org",
@@ -453,7 +339,6 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
-    // Gallery as ItemList of ImageObject
     if(Array.isArray(C.gallery)){
       arr.push({
         "@context": "https://schema.org",
@@ -473,7 +358,6 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
-    // Pricing as OfferCatalog
     if(Array.isArray(C.pricing)){
       arr.push({
         "@context": "https://schema.org",
@@ -488,7 +372,6 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
-    // FAQPage
     if(Array.isArray(C.faq)){
       arr.push({
         "@context": "https://schema.org",
@@ -504,8 +387,78 @@ document.addEventListener('DOMContentLoaded', function(){
     const target = document.getElementById('schema-dynamic');
     if(target){ target.textContent = JSON.stringify(arr, null, 2); }
     else {
-      const s = document.createElement('script'); s.type = 'application/ld+json'; s.id='schema-dynamic'; s.textContent = JSON.stringify(arr);
+      const s = document.createElement('script');
+      s.type = 'application/ld+json'; s.id='schema-dynamic';
+      s.textContent = JSON.stringify(arr);
       document.head.appendChild(s);
     }
   })();
 });
+
+// ==== فرم + Turnstile ====
+(function () {
+  // لینک Web App جاری (Deployment → /exec)
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzMi1Z1_QjW1EKOOteZ5GkrO8CLEcqpzFb8FzZaDXc1ZxBb-ELx8oNWVnhJZzQytOugSg/exec';
+
+  const form = document.getElementById('contactForm');
+  const statusEl = document.getElementById('formStatus');
+  if (!form) return;
+
+  // hiddenها
+  const ua = form.querySelector('input[name="user_agent"]');
+  const rf = form.querySelector('input[name="referrer"]');
+  if (ua) ua.value = navigator.userAgent;
+  if (rf) rf.value = document.referrer || location.href;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    // honeypot
+    const hp = form.querySelector('input[name="honeypot"]');
+    if (hp && hp.value) {
+      statusEl.textContent = 'پیام شما ثبت شد. 🌟';
+      form.reset();
+      try { turnstile && turnstile.reset(); } catch(_) {}
+      return;
+    }
+
+    // اعتبارسنجی سریع
+    const name = (form.name?.value || '').trim();
+    const phone = (form.phone?.value || '').trim();
+    const message = (form.message?.value || '').trim();
+    if (!name || !phone || !message) {
+      statusEl.textContent = 'لطفاً نام، شماره تماس و پیام را وارد کنید.';
+      return;
+    }
+
+    // وجود توکن Turnstile
+    const tsField = form.querySelector('input[name="cf-turnstile-response"]');
+    if (!tsField || !tsField.value) {
+      statusEl.textContent = 'لطفاً اعتبارسنجی امنیتی را تکمیل کنید.';
+      return;
+    }
+
+    statusEl.textContent = 'در حال ارسال...';
+
+    try {
+      const res = await fetch(WEB_APP_URL, { method: 'POST', body: new FormData(form) });
+      let payload = null;
+      try { payload = await res.json(); } catch (_){}
+
+      if (payload && typeof payload.message === 'string') {
+        statusEl.textContent = payload.message;
+      } else if (res.ok) {
+        statusEl.textContent = 'پیام شما با موفقیت ثبت شد. 🌟';
+      } else {
+        statusEl.textContent = 'ارسال پیام ناموفق بود. لطفاً دوباره تلاش کنید.';
+      }
+
+      if (payload?.ok || res.ok) {
+        form.reset();
+        try { turnstile && turnstile.reset(); } catch(_) {}
+      }
+    } catch (err) {
+      statusEl.textContent = 'خطا در ارتباط. اتصال اینترنت/فیلترشکن را بررسی کنید.';
+    }
+  });
+})();
