@@ -413,12 +413,17 @@ document.addEventListener('DOMContentLoaded', function(){
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
+    // جلوگیری از ارسال دوباره در حال پردازش
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('is-loading'); }
+
     // honeypot
     const hp = form.querySelector('input[name="honeypot"]');
     if (hp && hp.value) {
       statusEl.textContent = 'پیام شما ثبت شد. 🌟';
       form.reset();
       try { turnstile && turnstile.reset(); } catch(_) {}
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
       return;
     }
 
@@ -428,6 +433,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const message = (form.message?.value || '').trim();
     if (!name || !phone || !message) {
       statusEl.textContent = 'لطفاً نام، شماره تماس و پیام را وارد کنید.';
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
       return;
     }
 
@@ -435,6 +441,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const tsField = form.querySelector('input[name="cf-turnstile-response"]');
     if (!tsField || !tsField.value) {
       statusEl.textContent = 'لطفاً اعتبارسنجی امنیتی را تکمیل کنید.';
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
       return;
     }
 
@@ -444,21 +451,24 @@ document.addEventListener('DOMContentLoaded', function(){
       const res = await fetch(WEB_APP_URL, { method: 'POST', body: new FormData(form) });
       let payload = null;
       try { payload = await res.json(); } catch (_){}
-
-      if (payload && typeof payload.message === 'string') {
-        statusEl.textContent = payload.message;
-      } else if (res.ok) {
-        statusEl.textContent = 'پیام شما با موفقیت ثبت شد. 🌟';
-      } else {
-        statusEl.textContent = 'ارسال پیام ناموفق بود. لطفاً دوباره تلاش کنید.';
-      }
-
-      if (payload?.ok || res.ok) {
+      // موفقیت فقط زمانی که سرور ok=true برگرداند
+      if (payload && payload.ok === true) {
+        statusEl.textContent = typeof payload.message === 'string' ? payload.message : 'پیام شما با موفقیت ثبت شد. 🌟';
         form.reset();
         try { turnstile && turnstile.reset(); } catch(_) {}
+      } else {
+        // پیام خطا از سمت سرور در صورت وجود
+        if (payload && typeof payload.message === 'string') {
+          statusEl.textContent = payload.message;
+        } else {
+          statusEl.textContent = 'ارسال پیام ناموفق بود. لطفاً دوباره تلاش کنید.';
+        }
       }
     } catch (err) {
       statusEl.textContent = 'خطا در ارتباط. اتصال اینترنت/فیلترشکن را بررسی کنید.';
+      try { console.error('Contact form submit error:', err); } catch(_){}
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
     }
   });
 })();
