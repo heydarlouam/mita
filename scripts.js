@@ -299,9 +299,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
       // اعتبارسنجی ساده
       const name = form.name.value.trim();
-      const phone = form.phone.value.trim();
+      const email = form.email.value.trim();
       const message = form.message.value.trim();
-      if (!name || !phone || !message) {
+      if (!name || !emmail || !message) {
         statusEl.textContent = 'لطفاً همه فیلدها را پر کنید.';
         return;
       }
@@ -349,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function(){
         "contactPoint": C.seo.contactPoint ? [{
           "@type": "ContactPoint",
           "telephone": C.seo.contactPoint.telephone,
-          "phone": C.seo.contactPoint.phone,
+          "email": C.seo.contactPoint.email,
           "contactType": C.seo.contactPoint.contactType,
           "areaServed": C.seo.contactPoint.areaServed
         }] : undefined
