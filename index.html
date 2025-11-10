@@ -289,15 +289,17 @@
   <input type="hidden" name="referrer" value="" />
 
   <!-- فیلد پلن انتخاب‌شده -->
-  <label for="selectedPlan">پلن انتخاب‌شده</label>
-  <input
-    type="text"
-    id="selectedPlan"
-    name="selected_plan"
-    readonly
-    placeholder="هنوز پلنی انتخاب نشده"
-    style="margin-top:8px;opacity:0.8;cursor:not-allowed;"
-  />
+  <label for="selectedPlan">پلن انتخابی</label>
+<input
+  id="selectedPlan"
+  name="selected_plan"
+  type="text"
+  placeholder="هنوز پلنی انتخاب نشده"
+  readonly
+  aria-readonly="true"
+  autocomplete="off"
+/>
+
 
   <!-- Cloudflare Turnstile -->
   <div class="cf-turnstile" data-sitekey="0x4AAAAAACAJCWUtIaXUKRDn" data-theme="auto"></div>
