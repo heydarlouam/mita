@@ -396,15 +396,17 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 
 // ==== فرم + Turnstile ====
-(function () {
-  // لینک Web App جاری (Deployment → /exec)
-  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzMi1Z1_QjW1EKOOteZ5GkrO8CLEcqpzFb8FzZaDXc1ZxBb-ELx8oNWVnhJZzQytOugSg/exec';
 
+
+
+// ==== فرم + Turnstile (ورژن نهایی بدون باگ) ====
+(function () {
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzMi1Z1_QjW1EKOOteZ5GkrO8CLEcqpzFb8FzZaDXc1ZxBb-ELx8oNWVnhJZzQytOugSg/exec';
   const form = document.getElementById('contactForm');
   const statusEl = document.getElementById('formStatus');
   if (!form) return;
 
-  // hiddenها
+  // پرکردن فیلدهای مخفی
   const ua = form.querySelector('input[name="user_agent"]');
   const rf = form.querySelector('input[name="referrer"]');
   if (ua) ua.value = navigator.userAgent;
@@ -413,62 +415,60 @@ document.addEventListener('DOMContentLoaded', function(){
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    // جلوگیری از ارسال دوباره در حال پردازش
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.classList.add('is-loading'); }
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) { btn.disabled = true; btn.classList.add('is-loading'); }
 
-    // honeypot
     const hp = form.querySelector('input[name="honeypot"]');
     if (hp && hp.value) {
-      statusEl.textContent = 'پیام شما ثبت شد. 🌟';
+      statusEl.textContent = 'پیام شما ثبت شد ✅';
       form.reset();
-      try { turnstile && turnstile.reset(); } catch(_) {}
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
+      try { turnstile.reset(); } catch (_) {}
+      if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
       return;
     }
 
-    // اعتبارسنجی سریع
     const name = (form.name?.value || '').trim();
     const phone = (form.phone?.value || '').trim();
     const message = (form.message?.value || '').trim();
     if (!name || !phone || !message) {
-      statusEl.textContent = 'لطفاً نام، شماره تماس و پیام را وارد کنید.';
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
+      statusEl.textContent = 'لطفاً همه فیلدها را پر کنید.';
+      if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
       return;
     }
 
-    // وجود توکن Turnstile
-    const tsField = form.querySelector('input[name="cf-turnstile-response"]');
-    if (!tsField || !tsField.value) {
-      statusEl.textContent = 'لطفاً اعتبارسنجی امنیتی را تکمیل کنید.';
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
+    const ts = form.querySelector('input[name="cf-turnstile-response"]');
+    if (!ts || !ts.value) {
+      statusEl.textContent = 'اعتبارسنجی امنیتی را تکمیل کنید.';
+      if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
       return;
     }
 
-    statusEl.textContent = 'در حال ارسال...';
+    statusEl.textContent = 'در حال ارسال... ⏳';
 
     try {
-      const res = await fetch(WEB_APP_URL, { method: 'POST', body: new FormData(form) });
-      let payload = null;
-      try { payload = await res.json(); } catch (_){}
-      // موفقیت فقط زمانی که سرور ok=true برگرداند
-      if (payload && payload.ok === true) {
-        statusEl.textContent = typeof payload.message === 'string' ? payload.message : 'پیام شما با موفقیت ثبت شد. 🌟';
+      // ارسال به سبک application/x-www-form-urlencoded
+      const params = new URLSearchParams(new FormData(form));
+      const res = await fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: params
+      });
+
+      const payload = await res.json().catch(() => null);
+
+      if (payload && payload.ok) {
+        statusEl.textContent = payload.message || 'پیام شما با موفقیت ثبت شد 🌟';
         form.reset();
-        try { turnstile && turnstile.reset(); } catch(_) {}
+        try { turnstile.reset(); } catch (_) {}
       } else {
-        // پیام خطا از سمت سرور در صورت وجود
-        if (payload && typeof payload.message === 'string') {
-          statusEl.textContent = payload.message;
-        } else {
-          statusEl.textContent = 'ارسال پیام ناموفق بود. لطفاً دوباره تلاش کنید.';
-        }
+        statusEl.textContent = payload?.message || 'ارسال ناموفق بود. دوباره تلاش کنید.';
       }
     } catch (err) {
-      statusEl.textContent = 'خطا در ارتباط. اتصال اینترنت/فیلترشکن را بررسی کنید.';
-      try { console.error('Contact form submit error:', err); } catch(_){}
+      console.error('Form send error:', err);
+      statusEl.textContent = 'خطا در ارتباط با سرور. اینترنت یا فیلترشکن را بررسی کنید.';
     } finally {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.classList.remove('is-loading'); }
+      if (btn) { btn.disabled = false; btn.classList.remove('is-loading'); }
     }
   });
 })();
+
